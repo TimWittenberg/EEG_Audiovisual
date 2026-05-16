@@ -1,0 +1,10 @@
+.cache/
+__pycache__/
+*.py[cod]
+
+# EEG data files
+Audvissen_Experiments/
+*.bdf
+*.vhdr
+*.vmrk
+*.eeg

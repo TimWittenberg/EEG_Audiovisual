@@ -1,0 +1,16 @@
+name: eeg_audivisual
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - ipykernel
+  - jupyterlab
+  - matplotlib
+  - mne
+  - numpy
+  - pandas
+  - scikit-learn
+  - scipy
+  - pip
+  - pip:
+      - torch

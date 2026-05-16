@@ -1,0 +1,9 @@
+experiment,component,model,prediction,metric_1,value_1,metric_2,value_2,metric_3,value_3
+Exp1,N1,static,SoP,mean_D_uV,-1.33343,t,-2.1390,p,0.04434
+Exp1,N1,static,PoS,mean_D_uV,-1.58234,t,-2.4899,p,0.02124
+Exp1,N1,learned,SoP,a_audio,0.81341,b_visual,0.31716,R2,0.45648
+Exp1,N1,learned,PoS,a_audio,0.82257,b_visual,0.30428,R2,0.46110
+Exp1,P2,static,SoP,mean_D_uV,1.55746,t,2.7045,p,0.01328
+Exp1,P2,static,PoS,mean_D_uV,1.69765,t,2.8719,p,0.00913
+Exp1,P2,learned,SoP,a_audio,0.99234,b_visual,0.86470,R2,0.71769
+Exp1,P2,learned,PoS,a_audio,0.99557,b_visual,0.86141,R2,0.70241
