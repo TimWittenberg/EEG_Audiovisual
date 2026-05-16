@@ -274,7 +274,7 @@ ADDITIVITY_MODELS = {
     "replay": AdditivityModel(
         name="replay",
         label="Externally initiated / replay",
-        formula="VAO ?= AO + VO",
+        formula="VAO = a*AO + b*VO",
         target=WaveformExpression("VAO", ((AUDIOVISUAL_CONDITION, 1.0),)),
         audio=WaveformExpression("AO", ((AUDITORY_CONDITION, 1.0),)),
         visual=WaveformExpression("VO", ((VISUAL_CONDITION, 1.0),)),
@@ -282,7 +282,7 @@ ADDITIVITY_MODELS = {
     "self": AdditivityModel(
         name="self",
         label="Self-initiated / motor-corrected",
-        formula="MVA ?= MA + MV",
+        formula="MVA = a*MA + b*MV",
         target=WaveformExpression("MVA", ((SELF_AUDIOVISUAL_CONDITION, 1.0),)),
         audio=WaveformExpression("MA", ((SELF_AUDITORY_CONDITION, 1.0),)),
         visual=WaveformExpression("MV", ((SELF_VISUAL_CONDITION, 1.0),)),
@@ -290,7 +290,7 @@ ADDITIVITY_MODELS = {
     "attenuation": AdditivityModel(
         name="attenuation",
         label="Attenuation waves",
-        formula="VAO-MVA ?= (AO-MA) + (VO-MV)",
+        formula="VAO-MVA = a*(AO-MA) + b*(VO-MV)",
         target=WaveformExpression(
             "VAO-MVA",
             ((AUDIOVISUAL_CONDITION, 1.0), (SELF_AUDIOVISUAL_CONDITION, -1.0)),

@@ -146,7 +146,7 @@ def analyse(experiment: str, site: tuple, model: io.AdditivityModel) -> None:
 
     # --- Figure --------------------------------------------------------------
     fig, axes = plt.subplots(1, 3, figsize=(15, 4.5))
-    fig.suptitle(f"Learned additive models  -  {experiment}  "
+    fig.suptitle(f"Learned additive models  {model.formula}  -  {experiment}  "
                  f"({model.label}; {site_label}, n={n})")
 
     # Panel 1: per-subject weights.

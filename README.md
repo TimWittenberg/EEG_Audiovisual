@@ -19,19 +19,19 @@ The project now runs each additivity analysis at three levels:
 1. **Externally initiated / replay responses**
 
    ```text
-   VAO ?= AO + VO
+   VAO = a*AO + b*VO
    ```
 
 2. **Self-initiated, motor-corrected responses**
 
    ```text
-   MVA ?= MA + MV
+   MVA = a*MA + b*MV
    ```
 
 3. **Attenuation waves**
 
    ```text
-   VAO - MVA ?= (AO - MA) + (VO - MV)
+   VAO - MVA = a*(AO - MA) + b*(VO - MV)
    ```
 
 The third level is the most direct test of the manuscript's attenuation claim,
@@ -74,7 +74,7 @@ value of 1 almost everywhere. The audiovisual sensory response is a *compressed*
 version of the linear sum, sharpest around the auditory N1–P2 complex.
 
 **2. The attenuation effect, by contrast, is additive.**
-For the attenuation level `VAO - MVA ?= (AO - MA) + (VO - MV)`, no
+For the attenuation level `VAO - MVA = a*(AO - MA) + b*(VO - MV)`, no
 component-level deviation is reliable at any site in either experiment (all
 deviations |D| ≤ 0.9 µV, all p ≥ .24). The non-additivity seen in `replay` and
 `self` is shared between the two conditions and cancels in their difference. The
