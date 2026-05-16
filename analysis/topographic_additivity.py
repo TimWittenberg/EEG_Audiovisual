@@ -1,10 +1,12 @@
-"""Per-channel additive fit and scalp topography of the audio/visual weights.
+"""Per-channel additive fit and scalp topography of audio/visual weights.
 
 The global learned fit pools all 32 channels into one regression, so
 high-amplitude channels dominate the estimated weights. This script instead
-fits the additive model
+fits the additive model for each requested layer:
 
-    VAO(t) = a*AO(t) + b*VO(t)        (no intercept; strict additivity is a=b=1)
+    replay      : VAO(t)     = a*AO(t)     + b*VO(t)
+    self        : MVA(t)     = a*MA(t)     + b*MV(t)
+    attenuation : VAO-MVA(t) = a*(AO-MA)(t) + b*(VO-MV)(t)
 
 INDEPENDENTLY for every channel and every subject, then averages across
 subjects. Every channel is weighted equally, and the result is a scalp map of
@@ -14,6 +16,7 @@ READ-ONLY on the source data. Output goes to results/.
 
 Usage:
     python analysis/topographic_additivity.py [--exp Exp1|Exp2|both]
+                                             [--model replay|self|attenuation|all]
 """
 from __future__ import annotations
 
@@ -32,12 +35,12 @@ import matplotlib.pyplot as plt  # noqa: E402
 mne.set_log_level("ERROR")
 
 
-def fit_channel(ao: np.ndarray, vo: np.ndarray, vao: np.ndarray) -> tuple[float, float, float]:
-    """No-intercept least-squares fit  VAO = a*AO + b*VO  for one channel."""
-    design = np.column_stack([ao, vo])
-    coef, *_ = np.linalg.lstsq(design, vao, rcond=None)
+def fit_channel(audio: np.ndarray, visual: np.ndarray, target: np.ndarray) -> tuple[float, float, float]:
+    """No-intercept least-squares fit target = a*audio + b*visual for one channel."""
+    design = np.column_stack([audio, visual])
+    coef, *_ = np.linalg.lstsq(design, target, rcond=None)
     a, b = coef
-    return float(a), float(b), io.r_squared(vao, design @ coef)
+    return float(a), float(b), io.r_squared(target, design @ coef)
 
 
 def make_info(ch_names: list[str], sfreq: float) -> mne.Info:
@@ -48,14 +51,15 @@ def make_info(ch_names: list[str], sfreq: float) -> mne.Info:
     return info
 
 
-def analyse(experiment: str) -> None:
-    cs = io.load_condition_set(experiment, io.REPLAY_CONDITIONS)
-    io.RESULTS_ROOT.mkdir(exist_ok=True)
+def analyse(experiment: str, model: io.AdditivityModel) -> None:
+    cs = io.load_condition_set(experiment, model.conditions)
+    out_dir = io.RESULTS_ROOT / "topographic" / model.name
+    out_dir.mkdir(parents=True, exist_ok=True)
 
-    ao = cs.cond(io.AUDITORY_CONDITION)        # (n_subj, n_ch, n_time)
-    vo = cs.cond(io.VISUAL_CONDITION)
-    vao = cs.cond(io.AUDIOVISUAL_CONDITION)
-    n, n_ch, _ = ao.shape
+    audio = model.audio.evaluate(cs)        # (n_subj, n_ch, n_time)
+    visual = model.visual.evaluate(cs)
+    target = model.target.evaluate(cs)
+    n, n_ch, _ = audio.shape
 
     # Fit every (subject, channel) independently.
     a = np.zeros((n, n_ch))
@@ -63,7 +67,9 @@ def analyse(experiment: str) -> None:
     r2 = np.zeros((n, n_ch))
     for i in range(n):
         for ch in range(n_ch):
-            a[i, ch], b[i, ch], r2[i, ch] = fit_channel(ao[i, ch], vo[i, ch], vao[i, ch])
+            a[i, ch], b[i, ch], r2[i, ch] = fit_channel(
+                audio[i, ch], visual[i, ch], target[i, ch]
+            )
 
     # Average across subjects -> one value per channel.
     a_mean, b_mean, r2_mean = a.mean(0), b.mean(0), r2.mean(0)
@@ -72,19 +78,22 @@ def analyse(experiment: str) -> None:
     dominance = a_mean - b_mean                 # audio dominance per channel
 
     # --- Per-channel CSV -----------------------------------------------------
-    csv_path = io.RESULTS_ROOT / f"topographic_additivity_{experiment}.csv"
+    csv_path = out_dir / f"topographic_additivity_{experiment}.csv"
     with csv_path.open("w", newline="") as fh:
         writer = csv.writer(fh)
-        writer.writerow(["experiment", "channel", "a_audio", "a_sem",
+        writer.writerow(["experiment", "model", "channel", "target_label",
+                         "audio_label", "visual_label", "a_audio", "a_sem",
                          "b_visual", "b_sem", "R2", "audio_minus_visual"])
         for ch, name in enumerate(cs.ch_names):
-            writer.writerow([experiment, name,
+            writer.writerow([experiment, model.name, name, model.target.label,
+                             model.audio.label, model.visual.label,
                              f"{a_mean[ch]:.5f}", f"{a_sem[ch]:.5f}",
                              f"{b_mean[ch]:.5f}", f"{b_sem[ch]:.5f}",
                              f"{r2_mean[ch]:.5f}", f"{dominance[ch]:.5f}"])
 
     # --- Console summary -----------------------------------------------------
-    print(f"\n=== Per-channel additive fit  VAO = a*AO + b*VO   [{experiment}] ===")
+    print(f"\n=== Per-channel additive fit  {model.formula}   "
+          f"[{model.label} | {experiment}] ===")
     print(f"subjects: {n}   channels: {n_ch}")
     if cs.skipped:
         print(f"skipped (incomplete condition set): {cs.skipped}")
@@ -104,8 +113,8 @@ def analyse(experiment: str) -> None:
     # --- Topographic figure --------------------------------------------------
     info = make_info(cs.ch_names, cs.sfreq)
     fig, axes = plt.subplots(1, 4, figsize=(16, 4.3))
-    fig.suptitle(f"Per-channel additive fit  VAO = a*AO + b*VO  -  {experiment}  "
-                 f"(n={n})")
+    fig.suptitle(f"Per-channel additive fit  {model.formula}  -  {experiment}  "
+                 f"({model.label}; n={n})")
 
     # Shared colour scale for a and b so the two weight maps are comparable.
     wlo = min(a_mean.min(), b_mean.min())
@@ -126,7 +135,7 @@ def analyse(experiment: str) -> None:
         fig.colorbar(im, ax=ax, shrink=0.7)
 
     fig.tight_layout()
-    fig_path = io.RESULTS_ROOT / f"topographic_additivity_{experiment}.png"
+    fig_path = out_dir / f"topographic_additivity_{experiment}.png"
     fig.savefig(fig_path, dpi=150)
     plt.close(fig)
     print(f"written: {fig_path.relative_to(io.PROJECT_ROOT)}")
@@ -135,10 +144,14 @@ def analyse(experiment: str) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--exp", choices=(*io.EXPERIMENTS, "both"), default="both")
+    parser.add_argument("--model", choices=(*io.ADDITIVITY_MODELS, "all"), default="all")
     args = parser.parse_args()
     experiments = io.EXPERIMENTS if args.exp == "both" else (args.exp,)
+    models = (io.ADDITIVITY_MODELS.values() if args.model == "all"
+              else (io.ADDITIVITY_MODELS[args.model],))
     for experiment in experiments:
-        analyse(experiment)
+        for model in models:
+            analyse(experiment, model)
 
 
 if __name__ == "__main__":

@@ -8,3 +8,6 @@ Audvissen_Experiments/
 *.vhdr
 *.vmrk
 *.eeg
+
+# Local papers and manuscript drafts
+related_work/

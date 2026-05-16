@@ -32,13 +32,31 @@ os.environ.setdefault("MPLCONFIGDIR", str(_MPL_CACHE))
 # --- Analysis configuration --------------------------------------------------
 EXPERIMENTS = ("Exp1", "Exp2")
 
-# Replay / externally-initiated conditions. The additive model asks whether the
-# audiovisual response equals the sum of its unimodal counterparts:
-#     VAO  ?=  AO + VO
+# Replay / externally-initiated conditions.
 AUDIOVISUAL_CONDITION = "VAO"          # combined auditory + visual (replay)
 AUDITORY_CONDITION = "AO"              # auditory-only (replay)
 VISUAL_CONDITION = "VO"                # visual-only (replay)
 REPLAY_CONDITIONS = (AUDITORY_CONDITION, VISUAL_CONDITION, AUDIOVISUAL_CONDITION)
+
+# Self-initiated conditions. These are the active averages exported after the
+# motor-only waveform has been subtracted in BrainVision Analyzer.
+SELF_AUDIOVISUAL_CONDITION = "MVA"     # motor-corrected audiovisual active
+SELF_AUDITORY_CONDITION = "MA"         # motor-corrected auditory active
+SELF_VISUAL_CONDITION = "MV"           # motor-corrected visual active
+SELF_CONDITIONS = (
+    SELF_AUDITORY_CONDITION,
+    SELF_VISUAL_CONDITION,
+    SELF_AUDIOVISUAL_CONDITION,
+)
+
+ALL_MODEL_CONDITIONS = (
+    AUDITORY_CONDITION,
+    VISUAL_CONDITION,
+    AUDIOVISUAL_CONDITION,
+    SELF_AUDITORY_CONDITION,
+    SELF_VISUAL_CONDITION,
+    SELF_AUDIOVISUAL_CONDITION,
+)
 
 # Posterior / visual ROI: occipital and parieto-occipital sites where the
 # visual evoked response is maximal (the manuscript's posterior ROI).
@@ -209,6 +227,84 @@ class ConditionSet:
     @property
     def n_subjects(self) -> int:
         return len(self.subjects)
+
+
+@dataclass(frozen=True)
+class WaveformExpression:
+    """Linear expression over condition waveforms, e.g. VAO - MVA."""
+
+    label: str
+    terms: tuple[tuple[str, float], ...]
+
+    @property
+    def conditions(self) -> tuple[str, ...]:
+        return tuple(condition for condition, _ in self.terms)
+
+    def evaluate(self, cs: ConditionSet) -> np.ndarray:
+        data = None
+        for condition, weight in self.terms:
+            term = weight * cs.cond(condition)
+            data = term if data is None else data + term
+        assert data is not None
+        return data
+
+
+@dataclass(frozen=True)
+class AdditivityModel:
+    """Target and unimodal predictors for one additivity layer."""
+
+    name: str
+    label: str
+    formula: str
+    target: WaveformExpression
+    audio: WaveformExpression
+    visual: WaveformExpression
+
+    @property
+    def conditions(self) -> tuple[str, ...]:
+        seen: list[str] = []
+        for expression in (self.target, self.audio, self.visual):
+            for condition in expression.conditions:
+                if condition not in seen:
+                    seen.append(condition)
+        return tuple(seen)
+
+
+ADDITIVITY_MODELS = {
+    "replay": AdditivityModel(
+        name="replay",
+        label="Externally initiated / replay",
+        formula="VAO ?= AO + VO",
+        target=WaveformExpression("VAO", ((AUDIOVISUAL_CONDITION, 1.0),)),
+        audio=WaveformExpression("AO", ((AUDITORY_CONDITION, 1.0),)),
+        visual=WaveformExpression("VO", ((VISUAL_CONDITION, 1.0),)),
+    ),
+    "self": AdditivityModel(
+        name="self",
+        label="Self-initiated / motor-corrected",
+        formula="MVA ?= MA + MV",
+        target=WaveformExpression("MVA", ((SELF_AUDIOVISUAL_CONDITION, 1.0),)),
+        audio=WaveformExpression("MA", ((SELF_AUDITORY_CONDITION, 1.0),)),
+        visual=WaveformExpression("MV", ((SELF_VISUAL_CONDITION, 1.0),)),
+    ),
+    "attenuation": AdditivityModel(
+        name="attenuation",
+        label="Attenuation waves",
+        formula="VAO-MVA ?= (AO-MA) + (VO-MV)",
+        target=WaveformExpression(
+            "VAO-MVA",
+            ((AUDIOVISUAL_CONDITION, 1.0), (SELF_AUDIOVISUAL_CONDITION, -1.0)),
+        ),
+        audio=WaveformExpression(
+            "AO-MA",
+            ((AUDITORY_CONDITION, 1.0), (SELF_AUDITORY_CONDITION, -1.0)),
+        ),
+        visual=WaveformExpression(
+            "VO-MV",
+            ((VISUAL_CONDITION, 1.0), (SELF_VISUAL_CONDITION, -1.0)),
+        ),
+    ),
+}
 
 
 def _subject_sort_key(subject: str) -> int:
