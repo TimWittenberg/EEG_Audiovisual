@@ -1,9 +1,0 @@
-experiment,additivity_model,component,model,prediction,metric_1,value_1,metric_2,value_2,metric_3,value_3
-Exp2,replay,P1,static,SoP,mean_D_uV,-0.88475,t,-3.1623,p,0.00365
-Exp2,replay,P1,static,PoS,mean_D_uV,-0.50173,t,-1.9700,p,0.05846
-Exp2,replay,P1,learned,SoP,a_audio,0.39598,b_visual,0.78389,R2,0.66882
-Exp2,replay,P1,learned,PoS,a_audio,0.50015,b_visual,0.81980,R2,0.70050
-Exp2,replay,N2,static,SoP,mean_D_uV,0.55257,t,1.6392,p,0.11198
-Exp2,replay,N2,static,PoS,mean_D_uV,-0.09811,t,-0.3161,p,0.75420
-Exp2,replay,N2,learned,SoP,a_audio,0.66700,b_visual,0.67936,R2,0.57770
-Exp2,replay,N2,learned,PoS,a_audio,0.78419,b_visual,0.66349,R2,0.66206

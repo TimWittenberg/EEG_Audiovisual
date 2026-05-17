@@ -149,18 +149,22 @@ def analyse(experiment: str, site: tuple, model: io.AdditivityModel) -> None:
     fig.suptitle(f"Learned additive models  {model.formula}  -  {experiment}  "
                  f"({model.label}; {site_label}, n={n})")
 
-    # Panel 1: per-subject weights.
+    # Panel 1: per-subject weights -- the jittered per-subject cloud, with the
+    # group mean and +/- SEM drawn as a marker centred on each cloud (no bars:
+    # the raw points already carry the distribution).
     ax = axes[0]
-    ax.bar([0, 1], [a.mean(), b.mean()],
-           yerr=[a.std(ddof=1) / np.sqrt(n), b.std(ddof=1) / np.sqrt(n)],
-           color=["tab:blue", "tab:green"], capsize=5, alpha=0.7)
-    ax.scatter(np.zeros(n) + np.random.uniform(-0.08, 0.08, n), a,
-               color="tab:blue", s=18, zorder=3)
-    ax.scatter(np.ones(n) + np.random.uniform(-0.08, 0.08, n), b,
-               color="tab:green", s=18, zorder=3)
     ax.axhline(1.0, color="0.5", ls="--", lw=1, label="strict additivity (=1)")
+    ax.axhline(0.0, color="0.8", lw=0.8)
+    ax.scatter(np.zeros(n) + np.random.uniform(-0.08, 0.08, n), a,
+               color="tab:blue", s=18, alpha=0.6, zorder=3)
+    ax.scatter(np.ones(n) + np.random.uniform(-0.08, 0.08, n), b,
+               color="tab:green", s=18, alpha=0.6, zorder=3)
+    for x0, vals in ((0, a), (1, b)):
+        ax.errorbar(x0, vals.mean(), yerr=vals.std(ddof=1) / np.sqrt(n),
+                    color="k", marker="o", markersize=5, capsize=4,
+                    lw=1.5, zorder=5)
 
-    # Significance bracket for the a-vs-b paired t-test.
+    # Significance bracket for the a-vs-b paired t-test (the audio-dominance test).
     top = max(a.max(), b.max())
     y_br = top + 0.10
     bar_h = 0.03 * max(1.0, top)
@@ -169,22 +173,26 @@ def analyse(experiment: str, site: tuple, model: io.AdditivityModel) -> None:
     sig = ("***" if p_ab < 0.001 else "**" if p_ab < 0.01
            else "*" if p_ab < 0.05 else "n.s.")
     ax.text(0.5, y_br + bar_h,
-            f"{sig}   paired t({n - 1}) = {t_ab:+.2f},  p = {p_ab:.3f}",
+            f"audio vs visual: {sig}  (paired t = {t_ab:+.2f}, p = {p_ab:.3f})",
             ha="center", va="bottom", fontsize=8)
     ax.set_ylim(top=y_br + bar_h + 0.22 * max(1.0, top))
 
     ax.set_xticks([0, 1])
     ax.set_xticklabels(["a (audio)", "b (visual)"])
+    ax.set_xlim(-0.5, 1.5)
     ax.set_ylabel("Fitted weight")
-    ax.set_title("Per-subject weights")
+    ax.set_title("Per-subject weights  (mean +/- SEM marker on the cloud)")
     ax.legend(loc="lower right", fontsize=8)
 
-    # Panel 2: model comparison by R^2.
+    # Panel 2: model comparison by R^2. Tick labels carry the weight constraint
+    # that defines each model, so the panel reads without the docstring.
     ax = axes[1]
     models = ("full", "static", "audio", "visual")
+    labels = ("full\n(a, b free)", "static\n(a=b=1)",
+              "audio\n(b=0)", "visual\n(a=0)")
     means = [r2[m].mean() for m in models]
     sems = [r2[m].std(ddof=1) / np.sqrt(n) for m in models]
-    ax.bar(models, means, yerr=sems, capsize=5,
+    ax.bar(labels, means, yerr=sems, capsize=5,
            color=["tab:purple", "0.6", "tab:blue", "tab:green"], alpha=0.7)
     ax.set_ylabel(f"R^2 (reconstruction of {model.target.label})")
     ax.set_title("Model comparison")

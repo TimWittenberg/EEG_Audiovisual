@@ -109,8 +109,11 @@ def analyse(experiment: str, site: tuple, model: io.AdditivityModel) -> None:
                              for k, v in row.items()})
 
     # --- Console summary -----------------------------------------------------
+    # The static test fixes both weights to 1, so the model formula is shown
+    # without the free a/b parameters (those belong to learned_additivity).
+    strict_formula = model.formula.replace("a*", "").replace("b*", "")
     n = cs.n_subjects
-    print(f"\n=== Static additive model  {model.formula}   "
+    print(f"\n=== Static additive model  {strict_formula}   "
           f"[{model.label} | {experiment} | {roi_label}] ===")
     print(f"subjects: {n}   site: {roi_label}")
     if cs.skipped:
@@ -135,7 +138,7 @@ def analyse(experiment: str, site: tuple, model: io.AdditivityModel) -> None:
     _, p_per_t = stats.ttest_1samp(diff_roi, 0.0, axis=0)
 
     fig, (ax_top, ax_bot) = plt.subplots(2, 1, figsize=(9, 7), sharex=True)
-    fig.suptitle(f"Static additive model  {model.formula}  -  {experiment}  "
+    fig.suptitle(f"Static additive model  {strict_formula}  -  {experiment}\n"
                  f"({model.label}; {roi_label}, n={n})")
 
     ax_top.plot(t_ms, target_roi.mean(0) * UV, color="tab:blue", lw=2,
@@ -169,7 +172,7 @@ def analyse(experiment: str, site: tuple, model: io.AdditivityModel) -> None:
             win = spec["window"]
             ax.axvspan(win[0] * 1e3, win[1] * 1e3, color=col, alpha=0.10)
 
-    fig.tight_layout()
+    fig.tight_layout(rect=(0, 0, 1, 0.96))
     fig_path = out_dir / f"static_additivity_{experiment}.png"
     fig.savefig(fig_path, dpi=150)
     plt.close(fig)

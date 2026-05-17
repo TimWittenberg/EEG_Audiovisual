@@ -1,9 +1,13 @@
 # EEG Audiovisual Additivity Analyses
 
-This repository contains supplementary EEG analyses for a paper on N1
-suppression to self-generated audiovisual sensory events. The paper examines
-whether sensory attenuation for audiovisual outcomes is comparable to attenuation
-for unisensory auditory and visual outcomes.
+This repository contains supplementary EEG analyses for a paper on sensory
+attenuation — the suppression of the N1 (and P2) event-related potentials — to
+self-initiated sensory events. Across two EEG experiments, the paper compares
+sensory attenuation for unisensory auditory and unisensory visual outcomes with
+attenuation for multisensory audiovisual outcomes, extending sensory-attenuation
+research from single-modality paradigms to the multisensory case. A central
+question is whether combining auditory and visual signals increases attenuation,
+and which modality drives the audiovisual effect.
 
 The analyses in this project were developed to address a reviewer concern about
 the interpretation of the audiovisual N1 effect. In the paper, the N1 was
@@ -34,16 +38,17 @@ The project now runs each additivity analysis at three levels:
    VAO - MVA = a*(AO - MA) + b*(VO - MV)
    ```
 
-The third level is the most direct test of the manuscript's attenuation claim,
+The third level is the most direct test of the paper's attenuation claim,
 because it asks whether the audiovisual attenuation effect itself can be
 explained as a weighted combination of auditory and visual attenuation.
 
 For each level, the project uses three complementary analysis approaches:
 
 1. **Static additivity tests**
-   The target audiovisual waveform is compared against the summed auditory and
-   visual waveforms. Deviations from this model indicate multisensory interaction
-   beyond a simple linear sum.
+   The strict additive case, with both weights fixed at `a = b = 1`: the target
+   audiovisual waveform is compared against the unweighted sum of the auditory
+   and visual waveforms. Deviations from this model indicate multisensory
+   interaction beyond a simple linear sum.
 
 2. **Learned additive models**
    The target audiovisual waveform is reconstructed as a weighted combination of
@@ -62,45 +67,61 @@ For each level, the project uses three complementary analysis approaches:
 
 ## Findings
 
-The analyses separate two questions that turn out to have different answers.
+This project asks whether the audiovisual N1 attenuation measured at Cz mostly
+reflects the auditory modality. It does — and not as a measurement-site
+artefact, since the posterior ROI shows the same pattern. That conclusion rests
+on the paper's main result (there is no visual attenuation to begin with) and is
+*corroborated* by the additivity analyses below, not carried by them: the
+regression fits on the attenuation wave are noisy and weak (see caveat).
 
-**1. The audiovisual responses themselves are not strictly additive.**
+**1. The audiovisual attenuation is auditory-carried; the visual modality adds
+essentially nothing.**
+Reconstructing the audiovisual attenuation as `a*(AO-MA) + b*(VO-MV)`, the
+visual-only fit (`a = 0`) explains essentially none of it — visual-only R² ≈ 0
+at every site in both experiments. At Cz the audio-only fit retains clearly more
+(R² ≈ 0.15–0.23); at the posterior ROI neither modality predicts the attenuation
+well. The fitted weights agree, `a > b`, but this reaches significance only at
+Cz in Experiment 1 (a = 0.65 vs b = 0.17, p = .002) — it is a trend at Cz in
+Experiment 2 (p = .10) and not significant at the ROI. So the weight asymmetry
+alone is weak evidence; the robust statement is the model-free one — the
+unimodal visual attenuation `VO - MV` is itself ≈ 0, so the sum
+`(AO - MA) + (VO - MV)` is necessarily carried by its auditory term. The
+per-channel topographic map shows auditory weighting across almost the whole
+scalp for the attenuation, but it is descriptive — not channel-wise
+significance-tested.
+
+**2. The audiovisual responses themselves are not strictly additive.**
 For both externally-initiated (`replay`) and self-initiated (`self`) responses,
 the observed audiovisual waveform departs significantly from the summed auditory
-and visual waveforms at the auditory site **Cz**. The strict-sum prediction
-overshoots the N1 by roughly 2–3 µV and undershoots the P2 by roughly 1.4–2.2 µV
-(p < .01 in both experiments). Fitted weights `a` and `b` lie below the additive
-value of 1 almost everywhere. The audiovisual sensory response is a *compressed*
-version of the linear sum, sharpest around the auditory N1–P2 complex.
+and visual waveforms at the auditory site **Cz** (component-window deviations,
+p < .01 in both experiments), largest around the auditory N1–P2 complex. The
+*direction* of the departure is left undescribed on purpose: the
+component-window measure mixes amplitude and latency differences, so calling it
+sub- or super-additive would over-read it. This non-additivity is
+fronto-central — it is not reliable at the posterior ROI.
 
-**2. The attenuation effect, by contrast, is additive.**
-For the attenuation level `VAO - MVA = a*(AO - MA) + b*(VO - MV)`, no
-component-level deviation is reliable at any site in either experiment (all
-deviations |D| ≤ 0.9 µV, all p ≥ .24). The non-additivity seen in `replay` and
-`self` is shared between the two conditions and cancels in their difference. The
-audiovisual attenuation can therefore be treated as the sum of the auditory and
-visual attenuations — even though the underlying responses cannot.
-
-**3. The attenuation is audio-dominated across the scalp.**
-The fitted audio weight exceeds the visual weight everywhere for the attenuation
-level (significantly at Cz in Experiment 1: a = 0.65 vs b = 0.17, p = .002). For
-the raw `replay` and `self` responses, audio dominance is fronto-central but
-flips to visual dominance over occipital channels; for the attenuation wave this
-flip never occurs — audio dominates even at the posterior ROI. The audiovisual
-attenuation is carried mainly by the auditory modality.
-
-Together this supports the manuscript's interpretation: the Cz audiovisual N1
-attenuation is dominated by the auditory modality, while visual contributions
-are better captured over posterior scalp. Crucially, the additivity of the
-attenuation effect itself holds at both sites.
+**3. The attenuation effect shows no _detectable_ departure from additivity.**
+For the attenuation level `VAO - MVA = (AO - MA) + (VO - MV)`, no component-level
+deviation from the strict sum is reliable at any site in either experiment (all
+deviations |D| ≤ 0.9 µV, all p ≥ .24). This is a secondary, weak result: a
+*failure to reject* strict additivity is not positive evidence for it. The only
+falsifiable additivity claim is the strict one, `a = b = 1`; a freely fitted
+`a`, `b` is not a test of additivity at all. The
+attenuation waves are noise-dominated (see caveat), the strict test has little
+power, and the fitted weights sit well below 1 — so strict additivity is, if
+anything, unlikely. This project does not claim it; the reportable point is only
+that no multisensory interaction is *detectable* at either site.
 
 **Caveat.** Attenuation waveforms are differences of difference waves and carry
-low signal-to-noise: the strict-additive whole-epoch R² is strongly negative,
-and least-squares weights are biased downward by noise in the predictors.
-"Additive" here means *no detectable departure* from additivity — established by
-the noise-robust component-window test — rather than a precise quantitative fit.
-Experiment 1 (n = 22) and Experiment 2 (n = 30) agree throughout, with
-Experiment 2 the cleaner of the two.
+low signal-to-noise. Even with both weights free, the linear fit reaches only
+R² ≈ 0.15–0.33 for the attenuation, against R² ≈ 0.6–0.77 for the raw
+responses — the model itself is sound, but the attenuation is mostly noise. The
+strict-additive R² is strongly negative, and least-squares weights are biased
+toward zero by noise in the predictors. "Additive" here means *no detectable
+departure* from additivity — a failure to reject, established by the
+component-window test — rather than a precise quantitative fit. Experiment 1
+(n = 22) and Experiment 2 (n = 30) agree throughout, with Experiment 2 the
+cleaner of the two.
 
 ## Repository Structure
 
@@ -109,7 +130,6 @@ analysis/
   io_utils.py                 Shared loading/configuration utilities
   static_additivity.py        Fixed AV = A + V tests
   learned_additivity.py       Learned AV = a*A + b*V models
-  peak_additivity.py          Peak-based additivity tests
   topographic_additivity.py   Per-channel topographic weighting analysis
 
 results/
@@ -127,7 +147,7 @@ results/
     attenuation/              Per-channel attenuation-wave maps
 ```
 
-The EEG data directory and local manuscript/literature folder are intentionally
+The EEG data directory and local paper/literature folder are intentionally
 excluded from version control.
 
 ## Recreating the Analyses
@@ -148,7 +168,6 @@ Run the analyses:
 ```bash
 python analysis/static_additivity.py --exp both --model all
 python analysis/learned_additivity.py --exp both --model all
-python analysis/peak_additivity.py --exp both --model all
 python analysis/topographic_additivity.py --exp both --model all
 ```
 
