@@ -79,9 +79,9 @@ essentially nothing.**
 Reconstructing the audiovisual attenuation as `a*(AO-MA) + b*(VO-MV)`, the
 visual-only fit (`a = 0`) explains essentially none of it — visual-only R² ≈ 0
 at every site in both experiments. At Cz the audio-only fit retains clearly more
-(R² ≈ 0.15–0.23); at the posterior ROI neither modality predicts the attenuation
+(R² ≈ 0.15–0.25); at the posterior ROI neither modality predicts the attenuation
 well. The fitted weights agree, `a > b`, but this reaches significance only at
-Cz in Experiment 1 (a = 0.65 vs b = 0.17, p = .002) — it is a trend at Cz in
+Cz in Experiment 1 (a = 0.64 vs b = 0.21, p = .003) — it is a trend at Cz in
 Experiment 2 (p = .10) and not significant at the ROI. So the weight asymmetry
 alone is weak evidence; the robust statement is the model-free one — the
 unimodal visual attenuation `VO - MV` is itself ≈ 0, so the sum
@@ -93,8 +93,10 @@ significance-tested.
 **2. The audiovisual responses themselves are not strictly additive.**
 For both externally-initiated (`replay`) and self-initiated (`self`) responses,
 the observed audiovisual waveform departs significantly from the summed auditory
-and visual waveforms at the auditory site **Cz** (component-window deviations,
-p < .01 in both experiments), largest around the auditory N1–P2 complex. The
+and visual waveforms at the auditory site **Cz**. The N1 deviation is reliable in
+every raw condition (p ≤ .005); the P2 deviation in all but one (p < .01 — the
+exception being self-initiated Experiment 1, p ≈ .08). The departure is largest
+around the auditory N1–P2 complex. The
 *direction* of the departure is left undescribed on purpose: the
 component-window measure mixes amplitude and latency differences, so calling it
 sub- or super-additive would over-read it. This non-additivity is
@@ -114,7 +116,7 @@ that no multisensory interaction is *detectable* at either site.
 
 **Caveat.** Attenuation waveforms are differences of difference waves and carry
 low signal-to-noise. Even with both weights free, the linear fit reaches only
-R² ≈ 0.15–0.33 for the attenuation, against R² ≈ 0.6–0.77 for the raw
+R² ≈ 0.15–0.34 for the attenuation, against R² ≈ 0.6–0.77 for the raw
 responses — the model itself is sound, but the attenuation is mostly noise. The
 strict-additive R² is strongly negative, and least-squares weights are biased
 toward zero by noise in the predictors. "Additive" here means *no detectable
