@@ -5,9 +5,7 @@ attenuation — the suppression of the N1 (and P2) event-related potentials — 
 self-initiated sensory events. Across two EEG experiments, the paper compares
 sensory attenuation for unisensory auditory and unisensory visual outcomes with
 attenuation for multisensory audiovisual outcomes, extending sensory-attenuation
-research from single-modality paradigms to the multisensory case. A central
-question is whether combining auditory and visual signals increases attenuation,
-and which modality drives the audiovisual effect.
+research from single-modality paradigms to the multisensory case. A more appropriate conclusion would be that in the present paradigm, audiovisual outcomes did not increase N1 attenuation beyond auditory outcomes.
 
 The analyses in this project were developed to address a reviewer concern about
 the interpretation of the audiovisual N1 effect. In the paper, the N1 was
