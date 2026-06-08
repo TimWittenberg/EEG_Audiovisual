@@ -5,7 +5,12 @@ attenuation — the suppression of the N1 (and P2) event-related potentials — 
 self-initiated sensory events. Across two EEG experiments, the paper compares
 sensory attenuation for unisensory auditory and unisensory visual outcomes with
 attenuation for multisensory audiovisual outcomes, extending sensory-attenuation
-research from single-modality paradigms to the multisensory case. A more appropriate conclusion would be that in the present paradigm, audiovisual outcomes did not increase N1 attenuation beyond auditory outcomes.
+research from single-modality paradigms to the multisensory case. The paper
+hypothesised that self-initiated audiovisual events would elicit the largest N1
+attenuation, and that both auditory and visual self-initiated events would show
+N1 attenuation without a predicted directionality of modality effects. The
+empirical conclusion is more conservative: in the present paradigm, audiovisual
+outcomes did not increase N1 attenuation beyond auditory outcomes.
 
 The analyses in this project were developed to address a reviewer concern about
 the interpretation of the audiovisual N1 effect. In the paper, the N1 was
@@ -66,14 +71,17 @@ For each level, the project uses three complementary analysis approaches:
 ## Findings
 
 This project asks whether the audiovisual N1 attenuation measured at Cz mostly
-reflects the auditory modality. It does — and not as a measurement-site
-artefact, since the posterior ROI shows the same pattern. That conclusion rests
-on the paper's main result (there is no visual attenuation to begin with) and is
-*corroborated* by the additivity analyses below, not carried by them: the
-regression fits on the attenuation wave are noisy and weak (see caveat).
+reflects the auditory modality. Consistent with the paper's conservative
+conclusion — audiovisual outcomes did not increase N1 attenuation beyond
+auditory outcomes — the auditory contribution accounts for the audiovisual
+attenuation at Cz, and the same pattern holds at the posterior ROI, so the
+result is not a measurement-site artefact. That conclusion rests on the paper's
+main result (there is no visual attenuation to begin with) and is *corroborated*
+by the additivity analyses below, not carried by them: the regression fits on
+the attenuation wave are noisy and weak (see caveat).
 
-**1. The audiovisual attenuation is auditory-carried; the visual modality adds
-essentially nothing.**
+**1. Audiovisual outcomes did not increase N1 attenuation beyond auditory
+outcomes; the visual modality adds essentially nothing.**
 Reconstructing the audiovisual attenuation as `a*(AO-MA) + b*(VO-MV)`, the
 visual-only fit (`a = 0`) explains essentially none of it — visual-only R² ≈ 0
 at every site in both experiments. At Cz the audio-only fit retains clearly more
